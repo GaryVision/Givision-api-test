@@ -3,37 +3,34 @@ import requests
 
 api_key = os.environ.get("AGENTMAIL_API_KEY")
 
-# 1. 必须先定义 Headers (确保 x-api-key 或 Authorization 放在这里)
+# AgentMail 标准 API 调用逻辑
+# 尝试使用最新的标准路径
+base_url = "https://api.agentmail.to/v1"
 headers = {
-    "x-api-key": api_key,  # 有些文档要求 x-api-key
-    "Authorization": f"Bearer {api_key}", # 有些要求 Bearer
+    "Authorization": f"Bearer {api_key}",
     "Content-Type": "application/json"
 }
 
-# 2. 第一步：侦测有效的 Inbox 列表（这是为了确认 API 是否连通）
-list_url = "https://api.agentmail.to/v1/inboxes"
-print("DEBUG: Fetching Inbox list...")
+# 1. 探测路由
+print("DEBUG: Testing connection to API...")
 try:
-    response_list = requests.get(list_url, headers=headers)
-    print(f"DEBUG: List Status: {response_list.status_code}")
-    print(f"DEBUG: List Response: {response_list.text}")
+    # 尝试访问所有 Inboxes
+    res = requests.get(f"{base_url}/inboxes", headers=headers)
+    print(f"DEBUG: Inbox List Status: {res.status_code}")
+    print(f"DEBUG: Inbox List Response: {res.text}")
+    
+    # 2. 发送邮件（如果在上一步返回了 200，说明 API 通了）
+    if res.status_code == 200:
+        data = {
+            "to": "2514047165@qq.com",
+            "subject": "GitHub Actions Test",
+            "text": "API 通信成功！"
+        }
+        # 很多 API 需要把 inbox_id 放在路径里或作为参数
+        # 这里尝试标准的发送路径
+        send_res = requests.post(f"{base_url}/messages", headers=headers, json=data)
+        print(f"DEBUG: Send Status: {send_res.status_code}")
+        print(f"DEBUG: Send Response: {send_res.text}")
+        
 except Exception as e:
-    print(f"DEBUG: List Request Error: {e}")
-
-# 3. 第二步：发送邮件
-# 注意：大部分 API 发信路径是 /v1/messages，而不是 /v1/inboxes
-send_url = "https://api.agentmail.to/v1/messages" 
-data = {
-    "from": "givision@agentmail.to",
-    "to": "2514047165@qq.com",
-    "subject": "GitHub Actions Test",
-    "text": "如果收到这封邮件，说明 API 调用成功！"
-}
-
-print("DEBUG: Sending request to AgentMail API...")
-try:
-    response_post = requests.post(send_url, headers=headers, json=data)
-    print(f"DEBUG: Post Status Code: {response_post.status_code}")
-    print(f"DEBUG: Post Response Body: {response_post.text}")
-except Exception as e:
-    print(f"DEBUG: Post Request Error: {e}")
+    print(f"DEBUG: Error: {e}")
