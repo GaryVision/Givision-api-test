@@ -7,7 +7,7 @@ api_key = os.environ.get("AGENTMAIL_API_KEY")
 url = "https://api.agentmail.to/v1/inboxes/givision@agentmail.to/messages"
 
 headers = {
-    "Authorization": f"Bearer {api_key}",
+    "x-api-key": api_key, # 尝试用这个代替 Authorization
     "Content-Type": "application/json"
 }
 
