@@ -12,7 +12,7 @@ jobs:
         with:
           python-version: '3.9'
       - name: Install dependencies
-        run: pip install agentmail
+        run: pip install requests
       - name: Run Test
         env:
           AGENTMAIL_API_KEY: ${{ secrets.AGENTMAIL_API_KEY }}
