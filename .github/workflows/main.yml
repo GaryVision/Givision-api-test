@@ -1,0 +1,4 @@
+- name: Run Test
+        env:
+          AGENTMAIL_API_KEY: ${{ secrets.AGENTMAIL_API_KEY }}
+        run: python test_mail.py
